@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #2e3b4e;
+            color: white;
+            padding: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        label {
+            font-size: 18px;
+            margin: 10px 0;
+            display: block;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        button {
+            background-color: #00d1b2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #00b89c;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .popup-content h3 {
+            margin: 0;
+        }
+
+        .popup-content p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .popup button {
+            background-color: #00d1b2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .popup button:hover {
+            background-color: #00b89c;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>BTC Transaction Dummy</h1>
+    </header>
+
+    <div class="container">
+        <label for="btc-address">Enter BTC Wallet Address:</label>
+        <input type="text" id="btc-address" placeholder="Enter wallet address">
+
+        <label for="btc-amount">Enter Amount in BTC:</label>
+        <input type="number" id="btc-amount" placeholder="Enter amount in BTC">
+
+        <button onclick="completeTransaction()">Complete Transaction</button>
+
+        <div class="result" id="transaction-result" style="display: none;">
+            Transaction Completed!
+        </div>
+    </div>
+
+    <!-- Popup for fee details -->
+    <div class="popup" id="fee-popup">
+        <div class="popup-content">
+            <h3>Transaction Fee</h3>
+            <p id="fee-details"></p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function completeTransaction() {
+            const walletAddress = document.getElementById("btc-address").value;
+            const amount = parseFloat(document.getElementById("btc-amount").value);
+
+            if (!walletAddress || isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid BTC address and amount.");
+                return;
+            }
+
+            // Display transaction completion message
+            document.getElementById("transaction-result").style.display = "block";
+
+            // Calculate 5% fee
+            const feeInBTC = amount * 0.05;
+            const feeInUSD = feeInBTC * 30000; // Example: BTC to USD conversion rate (adjust as needed)
+
+            // Prepare the fee details
+            const feeDetails = `
+                5% Transaction Fee: <br>
+                Amount in BTC: ${feeInBTC.toFixed(8)} BTC <br>
+                Amount in USD: $${feeInUSD.toFixed(2)}
+            `;
+
+            // Show the fee details in the popup
+            document.getElementById("fee-details").innerHTML = feeDetails;
+            document.getElementById("fee-popup").style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("fee-popup").style.display = "none";
+        }
+    </script>
+
+</body>
+</html>

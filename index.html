@@ -3,184 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC Transaction</title>
+    <title>BTC Withdrawal from CoinMarketCap</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            background-color: #2e3b4e;
-            color: white;
+            background-color: #1e1e2e;
+            color: #ffffff;
             padding: 20px;
+            text-align: center;
         }
 
-        header h1 {
-            margin: 0;
+        h1 {
+            color: #00d1b2;
         }
 
         .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #282a36;
+            padding: 30px;
             border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 350px;
+            margin: 0 auto;
+            color: white;
         }
 
-        label {
-            font-size: 18px;
+        input, select {
+            width: 100%;
+            padding: 10px;
             margin: 10px 0;
-            display: block;
-        }
-
-        input[type="text"], input[type="number"] {
-            width: 90%;
-            padding: 12px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 2px solid #ddd;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            font-size: 16px;
+        }
+
+        input {
+            background: #44475a;
+            color: white;
         }
 
         button {
-            background-color: #00d1b2;
+            background: #00d1b2;
             color: white;
-            border: none;
             padding: 12px 20px;
-            font-size: 16px;
+            border: none;
+            width: 100%;
+            font-size: 18px;
             cursor: pointer;
             border-radius: 5px;
-            margin-top: 10px;
-            transition: 0.3s;
+            margin-top: 15px;
+            transition: background 0.3s;
         }
 
         button:hover {
-            background-color: #00b89c;
+            background: #00b89c;
         }
 
         .result {
             margin-top: 20px;
-            padding: 15px;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 5px;
             font-size: 18px;
             font-weight: bold;
         }
 
         .popup {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .popup-content {
-            background-color: white;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
             padding: 20px;
             border-radius: 10px;
-            width: 300px;
+            width: 80%;
+            max-width: 400px;
+            margin: 20px auto;
             text-align: center;
         }
 
-        .popup-content h3 {
-            margin: 0;
+        .popup.active {
+            display: block;
         }
 
-        .popup-content p {
+        .warning {
+            margin-top: 10px;
+            color: #ffcc00;
+            font-weight: bold;
+        }
+
+        .usd-value {
+            margin-top: 10px;
             font-size: 16px;
-            margin: 10px 0;
-        }
-
-        .popup button {
-            background-color: #00d1b2;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .popup button:hover {
-            background-color: #00b89c;
+            color: #f4f4f4;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>BTC Transaction Dummy</h1>
-    </header>
-
+    <h1>BTC Withdrawal from CoinMarketCap</h1>
     <div class="container">
-        <label for="btc-address">Enter BTC Wallet Address:</label>
-        <input type="text" id="btc-address" placeholder="Enter wallet address">
+        <label for="wallet">Enter BTC Wallet Address:</label>
+        <input type="text" id="wallet" placeholder="Enter BTC wallet address" />
 
-        <label for="btc-amount">Enter Amount in BTC:</label>
-        <input type="number" id="btc-amount" placeholder="Enter amount in BTC">
+        <label for="amount">Enter Amount (BTC):</label>
+        <input type="number" id="amount" placeholder="Amount in BTC" />
 
         <button onclick="completeTransaction()">Complete Transaction</button>
 
-        <div class="result" id="transaction-result" style="display: none;">
-            Transaction Completed!
-        </div>
+        <div class="result" id="result"></div>
+        <div class="usd-value" id="usd-value"></div>
     </div>
 
-    <!-- Popup for fee details -->
-    <div class="popup" id="fee-popup">
-        <div class="popup-content">
-            <h3>Transaction Fee</h3>
-            <p id="fee-details"></p>
-            <button onclick="closePopup()">Close</button>
-        </div>
+    <!-- Popup for Transaction Completion -->
+    <div class="popup" id="popup">
+        <h3>Transaction Completed!</h3>
+        <p>Your transaction has been successfully completed.</p>
+        <p class="warning">To verify your transaction, you need to pay a 5% transaction fee.</p>
     </div>
 
     <script>
         function completeTransaction() {
-            const walletAddress = document.getElementById("btc-address").value;
-            const amount = parseFloat(document.getElementById("btc-amount").value);
+            let wallet = document.getElementById("wallet").value;
+            let amount = parseFloat(document.getElementById("amount").value);
+            let btcToUsdRate = 25000; // Example conversion rate, change this to get live rates
 
-            if (!walletAddress || isNaN(amount) || amount <= 0) {
-                alert("Please enter a valid BTC address and amount.");
+            if (!wallet || amount <= 0) {
+                document.getElementById("result").innerHTML = "Please enter a valid wallet address and amount.";
                 return;
             }
 
-            // Display transaction completion message
-            document.getElementById("transaction-result").style.display = "block";
+            let fee = amount * 0.05; // 5% fee calculation
+            let usdValue = amount * btcToUsdRate;
 
-            // Calculate 5% fee
-            const feeInBTC = amount * 0.05;
-            const feeInUSD = feeInBTC * 30000; // Example: BTC to USD conversion rate (adjust as needed)
+            // Display results
+            document.getElementById("result").innerHTML = `Transaction of ${amount} BTC is complete.`;
+            document.getElementById("usd-value").innerHTML = `USD Value: $${usdValue.toFixed(2)} (BTC Fee: $${(fee * btcToUsdRate).toFixed(2)})`;
 
-            // Prepare the fee details
-            const feeDetails = `
-                5% Transaction Fee: <br>
-                Amount in BTC: ${feeInBTC.toFixed(8)} BTC <br>
-                Amount in USD: $${feeInUSD.toFixed(2)}
-            `;
-
-            // Show the fee details in the popup
-            document.getElementById("fee-details").innerHTML = feeDetails;
-            document.getElementById("fee-popup").style.display = "flex";
+            // Show popup and warning
+            document.getElementById("popup").classList.add("active");
         }
 
-        function closePopup() {
-            document.getElementById("fee-popup").style.display = "none";
-        }
+        // Close the popup after 5 seconds
+        setTimeout(function () {
+            if (document.getElementById("popup").classList.contains("active")) {
+                document.getElementById("popup").classList.remove("active");
+            }
+        }, 5000);
     </script>
 
 </body>

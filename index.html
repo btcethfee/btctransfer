@@ -3,29 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC Transaction Dummy</title>
+    <title>Bitcoin Transfer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #1e1e2e;
-            color: #ffffff;
+            color: white;
             text-align: center;
             padding: 20px;
         }
-
-        h2 {
-            color: #00d1b2;
-        }
-
         .container {
             background: #282a36;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            width: 300px;
+            width: 350px;
             margin: auto;
         }
-
         select, input {
             width: 90%;
             padding: 10px;
@@ -34,12 +28,10 @@
             border: none;
             border-radius: 5px;
         }
-
         input {
             background: #44475a;
             color: white;
         }
-
         button {
             background: #00d1b2;
             color: white;
@@ -52,11 +44,9 @@
             border-radius: 5px;
             transition: 0.3s;
         }
-
         button:hover {
             background: #00b89c;
         }
-
         .result {
             margin-top: 15px;
             font-size: 18px;
@@ -65,58 +55,108 @@
             background: #44475a;
             border-radius: 5px;
         }
-
         .popup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #282a36;
+            background: white;
+            color: black;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 300px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaaaaa;
         }
     </style>
 </head>
 <body>
-
-    <h2>BTC Transaction Dummy</h2>
+    <h2>Bitcoin Transfer</h2>
     <div class="container">
-        <label for="wallet">Enter Wallet Address:</label>
-        <input type="text" id="wallet" placeholder="Enter BTC Wallet Address">
-
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Enter your name">
+        
+        <label for="surname">Surname:</label>
+        <input type="text" id="surname" placeholder="Enter your surname">
+        
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob">
+        
+        <label for="wallet">Send From:</label>
+        <select id="wallet" onchange="checkWallet()">
+            <option value="CoinMarketCap">CoinMarketCap</option>
+            <option value="Coinbase">Coinbase</option>
+            <option value="Binance">Binance</option>
+            <option value="Paybis">Paybis</option>
+            <option value="Bitfinex">Bitfinex</option>
+        </select>
+        
+        <p id="walletWarning" style="color: red; display: none;">No wallet was found in your name.</p>
+        
+        <label for="address">Send To Wallet Address:</label>
+        <input type="text" id="address" placeholder="Enter recipient wallet address">
+        
         <label for="amount">Enter Amount (BTC):</label>
-        <input type="number" id="amount" placeholder="Enter BTC amount">
-
-        <div id="usdValue">Amount in USD: $0.00</div>
-
-        <button onclick="calculateTransaction()">Complete Transaction</button>
-
-        <div class="popup" id="popup">
-            <p>Transaction fee of 5% is required before processing.</p>
-            <p id="feeDetails"></p>
-            <button onclick="closePopup()">Confirm Fee Payment</button>
-        </div>
+        <input type="number" id="amount" placeholder="Enter amount in BTC" oninput="updateUSD()">
+        
+        <p>Amount in USD: <span id="usdValue">$0.00</span></p>
+        
+        <button onclick="reviewTransaction()">Transfer BTC</button>
     </div>
-
+    
+    <div class="popup" id="popup">
+        <h3>Review Transaction</h3>
+        <p id="reviewText"></p>
+        <button onclick="submitTransfer()">Submit Transfer</button>
+    </div>
+    
+    <div class="footer">
+        <p>Licensed by FCA | Blockchain Certified | ISO 27001 Secure</p>
+    </div>
+    
     <script>
-        function calculateTransaction() {
-            let amount = document.getElementById("amount").value;
-            if (amount === "" || amount <= 0) {
-                alert("Please enter a valid amount.");
+        async function updateUSD() {
+            let btcAmount = document.getElementById("amount").value;
+            if (btcAmount <= 0) {
+                document.getElementById("usdValue").innerText = "$0.00";
                 return;
             }
-            let fee = amount * 0.05;
-            document.getElementById("feeDetails").innerHTML = `Transaction Fee: ${fee} BTC ($${(fee * 60000).toFixed(2)})`;
-            document.getElementById("popup").style.display = "block";
+            try {
+                let response = await fetch("https://api.coindesk.com/v1/bpi/currentprice/USD.json");
+                let data = await response.json();
+                let btcPrice = data.bpi.USD.rate_float;
+                let usdValue = (btcAmount * btcPrice).toFixed(2);
+                document.getElementById("usdValue").innerText = "$" + usdValue;
+            } catch (error) {
+                document.getElementById("usdValue").innerText = "Error fetching price";
+            }
         }
 
-        function closePopup() {
-            alert("Fees are not yet paid. Transaction cannot be completed.");
-            document.getElementById("popup").style.display = "none";
+        function checkWallet() {
+            let wallet = document.getElementById("wallet").value;
+            if (wallet !== "CoinMarketCap") {
+                document.getElementById("walletWarning").style.display = "block";
+            } else {
+                document.getElementById("walletWarning").style.display = "none";
+            }
+        }
+
+        function reviewTransaction() {
+            let amount = document.getElementById("amount").value;
+            let usdValue = document.getElementById("usdValue").innerText;
+            let popup = document.getElementById("popup");
+            document.getElementById("reviewText").innerHTML = `You are sending ${amount} BTC (${usdValue}).<br><br>5% transaction fee is required before processing.`;
+            popup.style.display = "block";
+        }
+
+        function submitTransfer() {
+            alert("Transaction cannot be confirmed until the 5% transaction fee is paid.");
         }
     </script>
-
 </body>
 </html>

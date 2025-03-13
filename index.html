@@ -73,6 +73,12 @@
             max-width: 400px;
             margin: 20px auto;
             text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
         }
 
         .popup.active {
@@ -99,6 +105,15 @@
             font-weight: bold;
             margin-top: 10px;
         }
+
+        .transaction-warning {
+            background-color: #f44336;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -119,13 +134,17 @@
             Please confirm the payment of the 5% fee to proceed with the transaction.
             <button onclick="confirmFeePayment()">Confirm Fee Payment</button>
         </div>
+
+        <div id="transaction-warning" class="transaction-warning" style="display: none;">
+            Warning: The transaction cannot be completed as the 5% fee is not paid.
+        </div>
     </div>
 
-    <!-- Popup for Transaction Completion -->
+    <!-- Popup for Fee Payment -->
     <div class="popup" id="popup">
-        <h3>Transaction Completed!</h3>
-        <p>Your transaction has been successfully completed.</p>
-        <p class="warning">Thank you for completing the payment. The 5% fee has been deducted.</p>
+        <h3>Transaction Fee</h3>
+        <p>To complete the transaction, a 5% fee must be paid.</p>
+        <button onclick="confirmFeePayment()">Confirm Fee Payment</button>
     </div>
 
     <script>
@@ -155,25 +174,28 @@
             document.getElementById("result").innerHTML = `Transaction Fee: ${fee.toFixed(6)} BTC ($${(fee * btcToUsdRate).toFixed(2)})`;
             document.getElementById("usd-value").innerHTML = `USD Value: $${usdValue.toFixed(2)}`;
 
-            // Show the confirmation button
-            document.getElementById("confirmation").style.display = 'block';
+            // Show the fee payment popup
+            document.getElementById("popup").classList.add("active");
         }
 
         // Function to confirm the fee payment
         function confirmFeePayment() {
-            // Close the confirmation button
-            document.getElementById("confirmation").style.display = 'none';
+            // Close the fee payment popup
+            document.getElementById("popup").classList.remove("active");
 
-            // Show the transaction completion popup
-            document.getElementById("popup").classList.add("active");
+            // Show the warning message that fee is not yet paid
+            document.getElementById("transaction-warning").style.display = 'block';
+
+            // Show the confirmation button for fee payment again
+            document.getElementById("confirmation").style.display = 'block';
         }
 
-        // Close the popup after 5 seconds
+        // Close the fee payment popup after 10 seconds if not confirmed
         setTimeout(function () {
             if (document.getElementById("popup").classList.contains("active")) {
                 document.getElementById("popup").classList.remove("active");
             }
-        }, 5000);
+        }, 10000);
     </script>
 
 </body>

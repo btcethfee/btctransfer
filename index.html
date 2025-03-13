@@ -13,18 +13,6 @@
             padding: 20px;
         }
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-        }
-
-        .logo {
-            width: 50px;
-            height: auto;
-        }
-
         h2 {
             color: #00d1b2;
         }
@@ -34,7 +22,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            width: 350px;
+            width: 300px;
             margin: auto;
         }
 
@@ -45,6 +33,11 @@
             font-size: 16px;
             border: none;
             border-radius: 5px;
+        }
+
+        input {
+            background: #44475a;
+            color: white;
         }
 
         button {
@@ -64,106 +57,66 @@
             background: #00b89c;
         }
 
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #ccc;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <img src="bitcoin_logo.png" alt="Bitcoin Logo" class="logo">
-        <a href="about.html" style="color: white; text-decoration: none;">About Us</a>
-    </div>
-    <h2>BTC Withdrawal </h2>
-    <div class="container">
-        <label for="platform">Select Platform:</label>
-        <select id="platform">
-            <option value="CoinMarketCap">CoinMarketCap</option>
-            <option value="Coinbase">Coinbase</option>
-            <option value="Binance">Binance</option>
-            <option value="OKX">OKX</option>
-            <option value="Atomic">Atomic</option>
-            <option value="Paybis">Paybis</option>
-        </select>
-
-        <label for="name">Name:</label>
-        <input type="text" id="name" placeholder="Enter your name">
-
-        <label for="surname">Surname:</label>
-        <input type="text" id="surname" placeholder="Enter your surname">
-
-        <label for="dob">Date of Birth:</label>
-        <input type="date" id="dob">
-
-        <label for="wallet">Wallet Address:</label>
-        <input type="text" id="wallet" placeholder="Enter wallet address">
-
-        <label for="amount">Enter Amount (BTC):</label>
-        <input type="number" id="amount" placeholder="Enter amount">
-
-        <div id="warning" style="color: red; display: none;">No wallet found under your name. Only CoinMarketCap is available.</div>
-
-        <button onclick="checkPlatform()">Transfer BTC</button>
-    </div>
-
-    <script>
-        function checkPlatform() {
-            let platform = document.getElementById("platform").value;
-            let warning = document.getElementById("warning");
-            
-            if (platform !== "CoinMarketCap") {
-                warning.style.display = "block";
-            } else {
-                warning.style.display = "none";
-                alert("Please pay the 5% transaction fee to proceed.");
-            }
-        }
-    </script>
-
-    <div class="footer">
-        Authorized by FCA (Financial Conduct Authority) | Licensed Crypto Transfers | Secure Transactions
-    </div>
-</body>
-</html>
-
-<!-- About Us Page -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e2e;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
+        .result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+            background: #44475a;
+            border-radius: 5px;
         }
 
-        .container {
-            background: #282a36;
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #44475a;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            width: 350px;
-            margin: auto;
         }
     </style>
 </head>
 <body>
-    <h2>About Us</h2>
+
+    <h2>BTC Withdrawal from CoinMarketCap</h2>
     <div class="container">
-        <p>We are a leading crypto transfer service, securely moving funds from one wallet to another with full compliance.</p>
-        <h3>Licenses:</h3>
-        <ul>
-            <li>FCA Authorized</li>
-            <li>EU Crypto Transfer Certified</li>
-            <li>SEC Compliance</li>
-        </ul>
+        <label for="wallet">Enter Wallet Address:</label>
+        <input type="text" id="wallet" placeholder="Enter BTC Wallet Address">
+
+        <label for="amount">Enter Amount (BTC):</label>
+        <input type="number" id="amount" placeholder="Enter BTC amount">
+
+        <div id="usdValue">Amount in USD: $0.00</div>
+
+        <button onclick="calculateTransaction()">Complete Transaction</button>
+
+        <div class="popup" id="popup">
+            <p>Transaction fee of 5% is required before processing.</p>
+            <p id="feeDetails"></p>
+            <button onclick="closePopup()">Confirm Fee Payment</button>
+        </div>
     </div>
+
+    <script>
+        function calculateTransaction() {
+            let amount = document.getElementById("amount").value;
+            if (amount === "" || amount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+            let fee = amount * 0.05;
+            document.getElementById("feeDetails").innerHTML = `Transaction Fee: ${fee} BTC ($${(fee * 60000).toFixed(2)})`;
+            document.getElementById("popup").style.display = "block";
+        }
+
+        function closePopup() {
+            alert("Fees are not yet paid. Transaction cannot be completed.");
+            document.getElementById("popup").style.display = "none";
+        }
+    </script>
+
 </body>
 </html>

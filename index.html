@@ -8,195 +8,108 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #1e1e2e;
-            color: #ffffff;
-            padding: 20px;
+            color: white;
             text-align: center;
+            padding: 20px;
         }
-
-        h1 {
-            color: #00d1b2;
-        }
-
         .container {
-            background-color: #282a36;
-            padding: 30px;
+            background: #282a36;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             width: 350px;
-            margin: 0 auto;
-            color: white;
+            margin: auto;
         }
-
-        input, select {
-            width: 100%;
+        select, input {
+            width: 90%;
             padding: 10px;
             margin: 10px 0;
-            border-radius: 5px;
             font-size: 16px;
-        }
-
-        input {
+            border: none;
+            border-radius: 5px;
             background: #44475a;
             color: white;
         }
-
         button {
             background: #00d1b2;
             color: white;
-            padding: 12px 20px;
             border: none;
-            width: 100%;
-            font-size: 18px;
+            padding: 10px;
+            font-size: 16px;
             cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
             border-radius: 5px;
-            margin-top: 15px;
-            transition: background 0.3s;
         }
-
         button:hover {
             background: #00b89c;
         }
-
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
         .popup {
             display: none;
-            background: rgba(0, 0, 0, 0.7);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ff4444;
             color: white;
             padding: 20px;
             border-radius: 10px;
-            width: 80%;
-            max-width: 400px;
-            margin: 20px auto;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 1000;
-        }
-
-        .popup.active {
-            display: block;
-        }
-
-        .warning {
-            margin-top: 10px;
-            color: #ffcc00;
-            font-weight: bold;
-        }
-
-        .usd-value {
-            margin-top: 10px;
-            font-size: 16px;
-            color: #f4f4f4;
-        }
-
-        .confirmation {
-            background-color: #ffcc00;
-            color: #333;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .transaction-warning {
-            background-color: #f44336;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
-
-    <h1>BTC Withdrawal from CoinMarketCap</h1>
+    <h2>BTC Withdrawal from CoinMarketCap</h2>
     <div class="container">
-        <label for="wallet">Enter BTC Wallet Address:</label>
-        <input type="text" id="wallet" placeholder="Enter BTC wallet address" />
-
-        <label for="amount">Enter Amount (BTC):</label>
-        <input type="number" id="amount" placeholder="Amount in BTC" />
-
-        <button onclick="showTransactionFee()">Calculate Transaction Fee</button>
-
-        <div class="result" id="result"></div>
-        <div class="usd-value" id="usd-value"></div>
-        <div class="confirmation" id="confirmation" style="display: none;">
-            Please confirm the payment of the 5% fee to proceed with the transaction.
-            <button onclick="confirmFeePayment()">Confirm Fee Payment</button>
-        </div>
-
-        <div id="transaction-warning" class="transaction-warning" style="display: none;">
-            Warning: The transaction cannot be completed as the 5% fee is not paid.
-        </div>
+        <label for="name">First Name:</label>
+        <input type="text" id="name" placeholder="Enter first name">
+        
+        <label for="surname">Last Name:</label>
+        <input type="text" id="surname" placeholder="Enter last name">
+        
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob">
+        
+        <label for="platform">Transferring From:</label>
+        <select id="platform">
+            <option value="CoinMarketCap">CoinMarketCap</option>
+            <option value="Coinbase">Coinbase</option>
+            <option value="Binance">Binance</option>
+            <option value="OKX">OKX</option>
+            <option value="Atomic">Atomic</option>
+            <option value="Paybis">Paybis</option>
+        </select>
+        
+        <label for="wallet">BTC Wallet Address:</label>
+        <input type="text" id="wallet" placeholder="Enter wallet address">
+        
+        <label for="amount">Amount (BTC):</label>
+        <input type="number" id="amount" placeholder="Enter amount">
+        
+        <button onclick="confirmTransaction()">Transfer BTC</button>
     </div>
-
-    <!-- Popup for Fee Payment -->
+    
     <div class="popup" id="popup">
-        <h3>Transaction Fee</h3>
-        <p>To complete the transaction, a 5% fee must be paid.</p>
-        <button onclick="confirmFeePayment()">Confirm Fee Payment</button>
+        <p>Warning: A 5% transaction fee must be paid before completing the withdrawal.</p>
+        <p id="feeAmount"></p>
+        <button onclick="closePopup()">Confirm Fee Payment</button>
+        <p style="font-size: 14px; color: yellow;">Fees are not yet paid to complete the transaction.</p>
     </div>
-
+    
     <script>
-        // Function to fetch live BTC to USD rate from CoinGecko
-        async function fetchBTCtoUSD() {
-            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-            const data = await response.json();
-            return data.bitcoin.usd;  // Return the BTC to USD price
-        }
-
-        async function showTransactionFee() {
-            let wallet = document.getElementById("wallet").value;
-            let amount = parseFloat(document.getElementById("amount").value);
-
-            if (!wallet || amount <= 0) {
-                document.getElementById("result").innerHTML = "Please enter a valid wallet address and amount.";
+        function confirmTransaction() {
+            let amount = document.getElementById("amount").value;
+            if (amount === "" || amount <= 0) {
+                alert("Please enter a valid amount.");
                 return;
             }
-
-            // Fetch live BTC to USD rate
-            let btcToUsdRate = await fetchBTCtoUSD();
-            
-            let fee = amount * 0.05; // 5% fee calculation
-            let usdValue = amount * btcToUsdRate;
-
-            // Display transaction fee and USD equivalent
-            document.getElementById("result").innerHTML = `Transaction Fee: ${fee.toFixed(6)} BTC ($${(fee * btcToUsdRate).toFixed(2)})`;
-            document.getElementById("usd-value").innerHTML = `USD Value: $${usdValue.toFixed(2)}`;
-
-            // Show the fee payment popup
-            document.getElementById("popup").classList.add("active");
+            let fee = amount * 0.05;
+            document.getElementById("feeAmount").innerText = `Transaction Fee: ${fee} BTC`;
+            document.getElementById("popup").style.display = "block";
         }
-
-        // Function to confirm the fee payment
-        function confirmFeePayment() {
-            // Close the fee payment popup
-            document.getElementById("popup").classList.remove("active");
-
-            // Show the warning message that fee is not yet paid
-            document.getElementById("transaction-warning").style.display = 'block';
-
-            // Show the confirmation button for fee payment again
-            document.getElementById("confirmation").style.display = 'block';
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
         }
-
-        // Close the fee payment popup after 10 seconds if not confirmed
-        setTimeout(function () {
-            if (document.getElementById("popup").classList.contains("active")) {
-                document.getElementById("popup").classList.remove("active");
-            }
-        }, 10000);
     </script>
-
 </body>
 </html>

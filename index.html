@@ -90,6 +90,15 @@
             font-size: 16px;
             color: #f4f4f4;
         }
+
+        .confirmation {
+            background-color: #ffcc00;
+            color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -102,17 +111,21 @@
         <label for="amount">Enter Amount (BTC):</label>
         <input type="number" id="amount" placeholder="Amount in BTC" />
 
-        <button onclick="completeTransaction()">Complete Transaction</button>
+        <button onclick="showTransactionFee()">Calculate Transaction Fee</button>
 
         <div class="result" id="result"></div>
         <div class="usd-value" id="usd-value"></div>
+        <div class="confirmation" id="confirmation" style="display: none;">
+            Please confirm the payment of the 5% fee to proceed with the transaction.
+            <button onclick="confirmFeePayment()">Confirm Fee Payment</button>
+        </div>
     </div>
 
     <!-- Popup for Transaction Completion -->
     <div class="popup" id="popup">
         <h3>Transaction Completed!</h3>
         <p>Your transaction has been successfully completed.</p>
-        <p class="warning">To verify your transaction, you need to pay a 5% transaction fee.</p>
+        <p class="warning">Thank you for completing the payment. The 5% fee has been deducted.</p>
     </div>
 
     <script>
@@ -123,7 +136,7 @@
             return data.bitcoin.usd;  // Return the BTC to USD price
         }
 
-        async function completeTransaction() {
+        async function showTransactionFee() {
             let wallet = document.getElementById("wallet").value;
             let amount = parseFloat(document.getElementById("amount").value);
 
@@ -138,11 +151,20 @@
             let fee = amount * 0.05; // 5% fee calculation
             let usdValue = amount * btcToUsdRate;
 
-            // Display results
-            document.getElementById("result").innerHTML = `Transaction of ${amount} BTC is complete.`;
-            document.getElementById("usd-value").innerHTML = `USD Value: $${usdValue.toFixed(2)} (BTC Fee: $${(fee * btcToUsdRate).toFixed(2)})`;
+            // Display transaction fee and USD equivalent
+            document.getElementById("result").innerHTML = `Transaction Fee: ${fee.toFixed(6)} BTC ($${(fee * btcToUsdRate).toFixed(2)})`;
+            document.getElementById("usd-value").innerHTML = `USD Value: $${usdValue.toFixed(2)}`;
 
-            // Show popup and warning
+            // Show the confirmation button
+            document.getElementById("confirmation").style.display = 'block';
+        }
+
+        // Function to confirm the fee payment
+        function confirmFeePayment() {
+            // Close the confirmation button
+            document.getElementById("confirmation").style.display = 'none';
+
+            // Show the transaction completion popup
             document.getElementById("popup").classList.add("active");
         }
 

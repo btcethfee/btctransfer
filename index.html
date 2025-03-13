@@ -116,16 +116,25 @@
     </div>
 
     <script>
-        function completeTransaction() {
+        // Function to fetch live BTC to USD rate from CoinGecko
+        async function fetchBTCtoUSD() {
+            const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+            const data = await response.json();
+            return data.bitcoin.usd;  // Return the BTC to USD price
+        }
+
+        async function completeTransaction() {
             let wallet = document.getElementById("wallet").value;
             let amount = parseFloat(document.getElementById("amount").value);
-            let btcToUsdRate = 25000; // Example conversion rate, change this to get live rates
 
             if (!wallet || amount <= 0) {
                 document.getElementById("result").innerHTML = "Please enter a valid wallet address and amount.";
                 return;
             }
 
+            // Fetch live BTC to USD rate
+            let btcToUsdRate = await fetchBTCtoUSD();
+            
             let fee = amount * 0.05; // 5% fee calculation
             let usdValue = amount * btcToUsdRate;
 
